@@ -1,0 +1,628 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cloud Queue Management System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        .header {
+            background: white;
+            text-align: center;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #667eea;
+        }
+
+        button {
+            border: none;
+            padding: 14px 22px;
+            border-radius: 8px;
+            background: #667eea;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #4f5fd1;
+            transform: translateY(-2px);
+        }
+
+        .next-btn {
+            background: #28a745;
+        }
+
+        .next-btn:hover {
+            background: #218838;
+        }
+
+        .complete-btn {
+            background: #dc3545;
+        }
+
+        .complete-btn:hover {
+            background: #c82333;
+        }
+
+        .current {
+            text-align: center;
+            background: #f4f5ff;
+            padding: 30px;
+            border-radius: 12px;
+        }
+
+        .current p {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .token {
+            font-size: 55px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .customer-name {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .empty {
+            text-align: center;
+            color: #777;
+            padding: 20px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .stat-box {
+            text-align: center;
+            background: #f7f7f7;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 35px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-title {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 14px;
+        }
+
+        td {
+            padding: 14px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .token-number {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 600px) {
+
+            body {
+                padding: 15px;
+            }
+
+            .form-group {
+                flex-direction: column;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .token {
+                font-size: 40px;
+            }
+
+            table {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Header -->
+    <div class="header">
+        <h1>☁️ Cloud Queue Management System</h1>
+        <p>Digital Queue Management for Faster and Smarter Service</p>
+    </div>
+
+
+    <!-- Add Customer -->
+    <div class="card">
+
+        <h2>👤 Add Customer to Queue</h2>
+
+        <div class="form-group">
+
+            <input
+                type="text"
+                id="customerName"
+                placeholder="Enter customer name"
+            >
+
+            <button onclick="addCustomer()">
+                🎫 Get Token
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- Current Customer -->
+    <div class="card">
+
+        <h2>📢 Current Customer</h2>
+
+        <div class="current" id="currentCustomer">
+
+            <div class="empty">
+                No customer is currently being served.
+            </div>
+
+            <button
+                class="next-btn"
+                onclick="callNext()"
+                style="margin-top:15px;"
+            >
+                ▶ Call Next Customer
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- Statistics -->
+    <div class="card">
+
+        <h2>📊 Queue Statistics</h2>
+
+        <div class="stats">
+
+            <div class="stat-box">
+                <div
+                    class="stat-number"
+                    id="waitingCount"
+                >
+                    0
+                </div>
+
+                <div class="stat-title">
+                    Waiting Customers
+                </div>
+            </div>
+
+
+            <div class="stat-box">
+                <div
+                    class="stat-number"
+                    id="servingCount"
+                >
+                    0
+                </div>
+
+                <div class="stat-title">
+                    Currently Serving
+                </div>
+            </div>
+
+
+            <div class="stat-box">
+                <div
+                    class="stat-number"
+                    id="totalCount"
+                >
+                    0
+                </div>
+
+                <div class="stat-title">
+                    Total Tokens
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Queue Table -->
+    <div class="card">
+
+        <h2>📋 Waiting Queue</h2>
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Position</th>
+                    <th>Token</th>
+                    <th>Customer Name</th>
+                </tr>
+
+            </thead>
+
+            <tbody id="queueTable">
+
+            </tbody>
+
+        </table>
+
+        <div
+            class="empty"
+            id="emptyMessage"
+        >
+            No customers are waiting.
+        </div>
+
+    </div>
+
+
+    <div class="footer">
+        <p>☁️ Cloud Queue Management System | Mini Project</p>
+    </div>
+
+</div>
+
+
+<script>
+
+    // Queue array
+    let queue = [];
+
+    // Token counter
+    let tokenNumber = 1;
+
+    // Current customer
+    let currentCustomer = null;
+
+
+    // Add customer
+    function addCustomer() {
+
+        let name = document
+            .getElementById("customerName")
+            .value
+            .trim();
+
+        if (name === "") {
+
+            alert("Please enter customer name.");
+
+            return;
+        }
+
+
+        // Create customer
+        let customer = {
+
+            token: tokenNumber,
+
+            name: name
+        };
+
+
+        // Add to queue
+        queue.push(customer);
+
+
+        // Increase token
+        tokenNumber++;
+
+
+        // Clear input
+        document.getElementById("customerName").value = "";
+
+
+        // Update page
+        updateQueue();
+
+
+        alert(
+            "Token generated successfully! Your token number is " +
+            customer.token
+        );
+    }
+
+
+    // Call next customer
+    function callNext() {
+
+        if (currentCustomer !== null) {
+
+            alert(
+                "Please complete the current customer first."
+            );
+
+            return;
+        }
+
+
+        if (queue.length === 0) {
+
+            alert("No customers are waiting.");
+
+            return;
+        }
+
+
+        // Remove first customer
+        currentCustomer = queue.shift();
+
+
+        // Update page
+        updateQueue();
+    }
+
+
+    // Complete current customer
+    function completeCustomer() {
+
+        if (currentCustomer === null) {
+
+            return;
+        }
+
+
+        alert(
+            "Token " +
+            currentCustomer.token +
+            " has been completed."
+        );
+
+
+        currentCustomer = null;
+
+
+        updateQueue();
+    }
+
+
+    // Update queue display
+    function updateQueue() {
+
+        let table =
+            document.getElementById("queueTable");
+
+        let emptyMessage =
+            document.getElementById("emptyMessage");
+
+
+        table.innerHTML = "";
+
+
+        // Display queue
+        if (queue.length === 0) {
+
+            emptyMessage.style.display = "block";
+
+        } else {
+
+            emptyMessage.style.display = "none";
+
+
+            queue.forEach(function(customer, index) {
+
+                let row = document.createElement("tr");
+
+
+                row.innerHTML = `
+
+                    <td>${index + 1}</td>
+
+                    <td class="token-number">
+                        Token ${customer.token}
+                    </td>
+
+                    <td>
+                        ${customer.name}
+                    </td>
+
+                `;
+
+
+                table.appendChild(row);
+
+            });
+        }
+
+
+        // Update waiting count
+        document.getElementById(
+            "waitingCount"
+        ).textContent = queue.length;
+
+
+        // Update serving count
+        document.getElementById(
+            "servingCount"
+        ).textContent =
+            currentCustomer ? 1 : 0;
+
+
+        // Total tokens
+        document.getElementById(
+            "totalCount"
+        ).textContent = tokenNumber - 1;
+
+
+        // Current customer section
+        let current =
+            document.getElementById(
+                "currentCustomer"
+            );
+
+
+        if (currentCustomer !== null) {
+
+            current.innerHTML = `
+
+                <p>Now Serving</p>
+
+                <div class="token">
+                    Token ${currentCustomer.token}
+                </div>
+
+                <div class="customer-name">
+                    ${currentCustomer.name}
+                </div>
+
+                <button
+                    class="complete-btn"
+                    onclick="completeCustomer()"
+                >
+                    ✓ Complete Customer
+                </button>
+
+            `;
+
+        } else {
+
+            current.innerHTML = `
+
+                <div class="empty">
+                    No customer is currently being served.
+                </div>
+
+                <button
+                    class="next-btn"
+                    onclick="callNext()"
+                    style="margin-top:15px;"
+                >
+                    ▶ Call Next Customer
+                </button>
+
+            `;
+        }
+    }
+
+
+    // Allow Enter key
+    document
+        .getElementById("customerName")
+        .addEventListener(
+            "keypress",
+            function(event) {
+
+                if (event.key === "Enter") {
+
+                    addCustomer();
+
+                }
+
+            }
+        );
+
+
+    // Initial page update
+    updateQueue();
+
+</script>
+
+</body>
+</html>
+```
